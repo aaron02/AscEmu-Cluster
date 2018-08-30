@@ -1,0 +1,71 @@
+# Copyright (C) 2014-2017 AscEmu Team <http://www.ascemu.org>
+
+set(PATH_PREFIX Management)
+
+set(SRC_MANAGEMENT_FILES
+   ${PATH_PREFIX}/AchievementMgr.cpp
+   ${PATH_PREFIX}/AchievementMgr.h
+   ${PATH_PREFIX}/AddonMgr.cpp
+   ${PATH_PREFIX}/AddonMgr.h
+   ${PATH_PREFIX}/Arenas.cpp
+   ${PATH_PREFIX}/Arenas.h
+   ${PATH_PREFIX}/ArenaTeam.cpp
+   ${PATH_PREFIX}/ArenaTeam.h
+   ${PATH_PREFIX}/AuctionHouse.cpp
+   ${PATH_PREFIX}/AuctionHouse.h
+   ${PATH_PREFIX}/AuctionMgr.cpp
+   ${PATH_PREFIX}/AuctionMgr.h
+   ${PATH_PREFIX}/CalendarMgr.cpp
+   ${PATH_PREFIX}/CalendarMgr.h
+   ${PATH_PREFIX}/Channel.cpp
+   ${PATH_PREFIX}/Channel.h
+   ${PATH_PREFIX}/ChannelMgr.h
+   ${PATH_PREFIX}/Container.cpp
+   ${PATH_PREFIX}/Container.h
+   ${PATH_PREFIX}/CRitual.cpp
+   ${PATH_PREFIX}/CRitual.h
+   ${PATH_PREFIX}/EquipmentSetMgr.cpp
+   ${PATH_PREFIX}/EquipmentSetMgr.h
+   ${PATH_PREFIX}/GameEvent.cpp
+   ${PATH_PREFIX}/GameEvent.h
+   ${PATH_PREFIX}/GameEventMgr.cpp
+   ${PATH_PREFIX}/GameEventMgr.h
+   ${PATH_PREFIX}/Group.cpp
+   ${PATH_PREFIX}/Group.h
+   ${PATH_PREFIX}/Guild.cpp
+   ${PATH_PREFIX}/Guild.h
+   ${PATH_PREFIX}/Item.cpp
+   ${PATH_PREFIX}/Item.h
+   ${PATH_PREFIX}/ItemInterface.cpp
+   ${PATH_PREFIX}/ItemInterface.h
+   ${PATH_PREFIX}/ItemPrototype.h
+   ${PATH_PREFIX}/LocalizationMgr.cpp
+   ${PATH_PREFIX}/LocalizationMgr.h
+   ${PATH_PREFIX}/LootMgr.cpp
+   ${PATH_PREFIX}/LootMgr.h
+   ${PATH_PREFIX}/MailMgr.cpp
+   ${PATH_PREFIX}/MailMgr.h
+   ${PATH_PREFIX}/Quest.cpp
+   ${PATH_PREFIX}/Quest.h
+   ${PATH_PREFIX}/QuestDefines.hpp
+   ${PATH_PREFIX}/QuestLogEntry.cpp
+   ${PATH_PREFIX}/QuestLogEntry.hpp
+   ${PATH_PREFIX}/QuestMgr.cpp
+   ${PATH_PREFIX}/QuestMgr.h
+   ${PATH_PREFIX}/Skill.h
+   ${PATH_PREFIX}/SkillNameMgr.h
+   ${PATH_PREFIX}/TaxiMgr.cpp
+   ${PATH_PREFIX}/TaxiMgr.h
+   ${PATH_PREFIX}/TransporterHandler.cpp
+   ${PATH_PREFIX}/TransporterHandler.h
+   ${PATH_PREFIX}/WeatherMgr.cpp
+   ${PATH_PREFIX}/WeatherMgr.h
+   ${PATH_PREFIX}/WordFilter.cpp
+   ${PATH_PREFIX}/WordFilter.h
+   ${PATH_PREFIX}/WorldStates.h
+   ${PATH_PREFIX}/WorldStatesHandler.cpp
+   ${PATH_PREFIX}/WorldStatesHandler.h
+)
+
+source_group(Management FILES ${SRC_MANAGEMENT_FILES})
+unset(PATH_PREFIX)
