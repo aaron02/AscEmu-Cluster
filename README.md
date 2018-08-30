@@ -18,6 +18,28 @@ You can help us by contributing. It is completely open source and can be used by
 This project is for educational purpose. So, if you're looking for serverfiles to run your server or create some "custom" scripts  this is the wrong place for you. If you want to discuss/develop/work on an open source project and on important stuff for the framework feel free to join our community.
 
 
+This Clustering Repo is not fully functional it has a couple of bugs.
+
+Currently not working:
+Chat Channels
+Delete Character
+When Server Traveling Player gets Duplicated in Who List
+When Server Traveling And travel right back ( rare issue ) for example destination is on port back node then you get stuck in loading screen. Example Instance is Stormiwnd Stockade.
+Multi Server Guild not Supported.
+A bit of a Lag because Packets need to Pass Realmserver first maybe it can be optimised. so we can Handle it faster.( logon -> realm -> workers )
+Auction Hause trought Servers
+You can get Stuck in login screen when logging in again
+
+Currently Working:
+Char Creation
+Whispering trough Servers
+Server Travel
+General Cluster Setup
+Multiple Nodes
+
+
+
+
 ## Contributing
 Feel free to contribute any corrections but make sure it is useful and tested before opening PRs.
 
