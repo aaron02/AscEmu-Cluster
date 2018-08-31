@@ -762,104 +762,107 @@ void WorldSession::HandleWhoOpcode(WorldPacket& recv_data)
     {
         plr = itr->second;
         ++itr;
-        bool queriedPlayerIsGM = false;
-        if (plr->GMPermissions.find("a"))
+        if (plr)
         {
-            queriedPlayerIsGM = true;
-        }
+            bool queriedPlayerIsGM = false;
+            if (plr->GMPermissions.find("a"))
+            {
+                queriedPlayerIsGM = true;
+            }
 
-        if (!worldConfig.server.showGmInWhoList && !gm && queriedPlayerIsGM)
-        {
-            continue;
-        }
-
-        if (!gm && plr->Team != team && !queriedPlayerIsGM)
-        {
-            continue;
-        }
-
-        ++total_count;
-
-        // Add by default, if we don't have any checks
-        add = true;
-
-        // Chat name
-        if (cname && chatname != plr->Name)
-            continue;
-
-        // Level check
-        lvl = plr->Level;
-        if (min_level && max_level)
-        {
-            // skip players outside of level range
-            if (lvl < min_level || lvl > max_level)
+            if (!worldConfig.server.showGmInWhoList && !gm && queriedPlayerIsGM)
             {
                 continue;
             }
-        }
 
-        // Zone id compare
-        if (zone_count)
-        {
-            // people that fail the zone check don't get added
-            add = false;
-            for (i = 0; i < zone_count; ++i)
+            if (!gm && plr->Team != team && !queriedPlayerIsGM)
             {
-                if (zones[i] == plr->ZoneId)
+                continue;
+            }
+
+            ++total_count;
+
+            // Add by default, if we don't have any checks
+            add = true;
+
+            // Chat name
+            if (cname && chatname != plr->Name)
+                continue;
+
+            // Level check
+            lvl = plr->Level;
+            if (min_level && max_level)
+            {
+                // skip players outside of level range
+                if (lvl < min_level || lvl > max_level)
                 {
-                    add = true;
-                    break;
+                    continue;
                 }
             }
-        }
 
-        if (!(class_mask & plr->getClassMask()) || !(race_mask & plr->getRaceMask()))
-        {
-            add = false;
-        }
-
-        // skip players that fail zone check
-        if (!add)
-            continue;
-
-        // name check
-        if (name_count)
-        {
-            // people that fail name check don't get added
-            add = false;
-            for (i = 0; i < name_count; ++i)
+            // Zone id compare
+            if (zone_count)
             {
-                if (!strnicmp(names[i].c_str(), plr->Name.c_str(), names[i].length()))
+                // people that fail the zone check don't get added
+                add = false;
+                for (i = 0; i < zone_count; ++i)
                 {
-                    add = true;
-                    break;
+                    if (zones[i] == plr->ZoneId)
+                    {
+                        add = true;
+                        break;
+                    }
                 }
             }
-        }
 
-        if (!add)
-            continue;
+            if (!(class_mask & plr->getClassMask()) || !(race_mask & plr->getRaceMask()))
+            {
+                add = false;
+            }
 
-        // if we're here, it means we've passed all testing
-        // so add the names :)
-        data << plr->Name; //needs to be .c_str() ??
-        if (plr->GuildId)
-        {
-            Guild * guild = objmgr.GetGuild(plr->GuildId);
-            if (guild)
-                data << objmgr.GetGuild(plr->GuildId)->GetGuildName();
+            // skip players that fail zone check
+            if (!add)
+                continue;
+
+            // name check
+            if (name_count)
+            {
+                // people that fail name check don't get added
+                add = false;
+                for (i = 0; i < name_count; ++i)
+                {
+                    if (!strnicmp(names[i].c_str(), plr->Name.c_str(), names[i].length()))
+                    {
+                        add = true;
+                        break;
+                    }
+                }
+            }
+
+            if (!add)
+                continue;
+
+            // if we're here, it means we've passed all testing
+            // so add the names :)
+            data << plr->Name; //needs to be .c_str() ??
+            if (plr->GuildId)
+            {
+                Guild * guild = objmgr.GetGuild(plr->GuildId);
+                if (guild)
+                    data << objmgr.GetGuild(plr->GuildId)->GetGuildName();
+                else
+                    data << uint8(0);	   // Guild name
+            }
             else
                 data << uint8(0);	   // Guild name
-        }
-        else
-            data << uint8(0);	   // Guild name
 
-        data << plr->Level;
-        data << uint32(plr->Class);
-        data << uint32(plr->Race);
-        data << plr->Gender;
-        data << uint32(plr->ZoneId);
-        ++sent_count;
+            data << plr->Level;
+            data << uint32(plr->Class);
+            data << uint32(plr->Race);
+            data << plr->Gender;
+            data << uint32(plr->ZoneId);
+            ++sent_count;
+        }
     }
     sClusterInterface.m_onlinePlayerMapMutex.Release();
     data.wpos(0);

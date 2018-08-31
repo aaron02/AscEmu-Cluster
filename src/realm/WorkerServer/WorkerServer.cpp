@@ -177,7 +177,7 @@ void WorkerServer::HandlePlayerLogout(WorldPacket & pck)
         /* tell all other servers this player has gone offline */
         WorldPacket data(ISMSG_DESTROY_PLAYER_INFO, 4);
         data << guid;
-        sClusterMgr.DistributePacketToAll(&data, this);
+        sClusterMgr.DistributePacketToAll(&data);
 
         /* clear the player from the session */
         s->ClearCurrentPlayer();
@@ -212,7 +212,7 @@ void WorkerServer::HandleTeleportRequest(WorldPacket & pck)
         if (dest == NULL)
         {
             data.Initialize(SMSG_TRANSFER_ABORTED);
-            data << uint32(0x02);	// INSTANCE_ABORT_NOT_FOUND
+            data << uint32(0x02);	// INSTANCE_ABORT_NOT_FOUND 0x02
             s->SendPacket(&data);
         }
         else
@@ -252,7 +252,9 @@ void WorkerServer::HandleTeleportRequest(WorldPacket & pck)
                 SendPacket(&data);
             }
 
+            // Maybe dont need to Send this here because we Inform the Servers at Login again with the new Data
             data.Initialize(ISMSG_PLAYER_INFO);
+            data << s->GetPlayer()->Guid;
             pi->Pack(data);
             sClusterMgr.DistributePacketToAll(&data, this);
         }

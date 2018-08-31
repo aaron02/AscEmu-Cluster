@@ -294,11 +294,15 @@ void ClusterInterface::HandleDestroyPlayerInfo(WorldPacket & pck)
     uint32 guid;
     pck >> guid;
 
+    // Accguire Map Mutex
+    m_onlinePlayerMapMutex.Acquire();
+
+    // Delete Record
     if (_onlinePlayers[guid])
-    {
-        delete _onlinePlayers[guid];
-        _onlinePlayers[guid] = NULL;
-    }
+        _onlinePlayers.erase(guid);
+
+    // Release
+    m_onlinePlayerMapMutex.Release();
 
     Player * player = objmgr.GetPlayer(guid);
     if (player)
@@ -548,8 +552,11 @@ void ClusterInterface::HandlePlayerInfo(WorldPacket & pck)
 
     pRPlayer->Unpack(pck);
 
+    m_onlinePlayerMapMutex.Acquire();
+
     _onlinePlayers[pRPlayer->Guid] = pRPlayer;
-    printf("Online Players %u \n", _onlinePlayers.size());
+
+    m_onlinePlayerMapMutex.Release();
 }
 
 bool WorldSession::ClusterTryPlayerLogin(uint32 Guid, uint8 _class, uint32 ClientBuild, std::string GMPermissions, uint32 Account_Flags)
