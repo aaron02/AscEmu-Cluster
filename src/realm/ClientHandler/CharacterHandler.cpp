@@ -352,3 +352,96 @@ void Session::HandlePlayerLogin(WorldPacket & pck)
     dest->SendPacket(&data);
     m_nextServer = dest;
 }
+
+void Session::HandleCharacterDelete(WorldPacket & recv_data)
+{
+    uint8 fail = E_CHAR_DELETE_SUCCESS;
+
+    uint64 guid;
+    recv_data >> guid;
+
+    if (sClientMgr.GetRPlayer((uint32)guid) != NULL)
+    {
+        // "Char deletion failed"
+        fail = E_CHAR_DELETE_FAILED;
+    }
+    else
+    {
+        fail = DeleteCharacter((uint32)guid);
+    }
+
+    WorldPacket data(SMSG_CHAR_DELETE, 1);
+    data << fail;
+    SendPacket(&data);
+}
+
+uint8 Session::DeleteCharacter(uint32 guid)
+{
+    RPlayerInfo* plr = sClientMgr.CreateRPlayer((uint32)guid);
+    
+    if (plr != NULL)
+    {
+        QueryResult* result = sCharSQL->Query("SELECT name FROM characters WHERE guid = %u AND acct = %u", (uint32)guid, m_accountId);
+        if (!result)
+            return E_CHAR_DELETE_FAILED;
+
+        std::string name = result->Fetch()[0].GetString();
+        delete result;
+
+        /* This Stuff neds to be implemented in Realmserver
+        if (inf->GuildId)
+        {
+            if (inf->guild->GetGuildLeader() == inf->guid)
+                return E_CHAR_DELETE_FAILED_GUILD_LEADER;
+            else
+                inf->guild->RemoveGuildMember(inf, NULL);
+        }
+
+        for (uint8 i = 0; i < NUM_CHARTER_TYPES; ++i)
+        {
+            Charter* c = objmgr.GetCharterByGuid(guid, (CharterTypes)i);
+            if (c != nullptr)
+                c->RemoveSignature((uint32)guid);
+        }
+
+
+        for (uint8 i = 0; i < NUM_ARENA_TEAM_TYPES; ++i)
+        {
+            ArenaTeam* t = objmgr.GetArenaTeamByGuid((uint32)guid, i);
+            if (t != NULL && t->m_leader == guid)
+                return E_CHAR_DELETE_FAILED_ARENA_CAPTAIN;
+            if (t != NULL)
+                t->RemoveMember(inf);
+        }
+        */
+
+        sCharSQL->WaitExecute("DELETE FROM characters WHERE guid = %u", (uint32)guid);
+
+        // Add corpse info to Rplayer info to handle this correctly
+        //Corpse* c = objmgr.GetCorpseByOwner((uint32)guid);
+        //if (c)
+            //sCharSQL->Execute("DELETE FROM corpses WHERE guid = %u", (uint32)guid);
+
+        sCharSQL->Execute("DELETE FROM playeritems WHERE ownerguid=%u", (uint32)guid);
+        sCharSQL->Execute("DELETE FROM gm_tickets WHERE playerguid = %u", (uint32)guid);
+        sCharSQL->Execute("DELETE FROM playerpets WHERE ownerguid = %u", (uint32)guid);
+        sCharSQL->Execute("DELETE FROM playerpetspells WHERE ownerguid = %u", (uint32)guid);
+        sCharSQL->Execute("DELETE FROM tutorials WHERE playerId = %u", (uint32)guid);
+        sCharSQL->Execute("DELETE FROM questlog WHERE player_guid = %u", (uint32)guid);
+        sCharSQL->Execute("DELETE FROM playercooldowns WHERE player_guid = %u", (uint32)guid);
+        sCharSQL->Execute("DELETE FROM mailbox WHERE player_guid = %u", (uint32)guid);
+        sCharSQL->Execute("DELETE FROM social_friends WHERE character_guid = %u OR friend_guid = %u", (uint32)guid, (uint32)guid);
+        sCharSQL->Execute("DELETE FROM social_ignores WHERE character_guid = %u OR ignore_guid = %u", (uint32)guid, (uint32)guid);
+        sCharSQL->Execute("DELETE FROM character_achievement WHERE guid = '%u' AND achievement NOT IN (457, 467, 466, 465, 464, 463, 462, 461, 460, 459, 458, 1404, 1405, 1406, 1407, 1408, 1409, 1410, 1411, 1412, 1413, 1415, 1414, 1416, 1417, 1418, 1419, 1420, 1421, 1422, 1423, 1424, 1425, 1426, 1427, 1463, 1400, 456, 1402)", (uint32)guid);
+        sCharSQL->Execute("DELETE FROM character_achievement_progress WHERE guid = '%u'", (uint32)guid);
+        sCharSQL->Execute("DELETE FROM playerspells WHERE GUID = '%u'", guid);
+        sCharSQL->Execute("DELETE FROM playerdeletedspells WHERE GUID = '%u'", guid);
+        sCharSQL->Execute("DELETE FROM playerreputations WHERE guid = '%u'", guid);
+        sCharSQL->Execute("DELETE FROM playerskills WHERE GUID = '%u'", guid);
+
+        // remove player info
+        sClientMgr.DestroyRPlayerInfo((uint32)guid);
+        return E_CHAR_DELETE_SUCCESS;
+    }
+    return E_CHAR_DELETE_FAILED;
+}

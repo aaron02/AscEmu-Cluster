@@ -84,6 +84,7 @@ public:
     void HandleCharacterEnum(WorldPacket & pck);
     void HandleCharacterCreate(WorldPacket & pck);
     void HandleCharacterDelete(WorldPacket & pck);
+    uint8 DeleteCharacter(uint32 guid);
     void HandleCharacterRename(WorldPacket & pck);
 
     void HandleItemQuerySingleOpcode(WorldPacket & pck);

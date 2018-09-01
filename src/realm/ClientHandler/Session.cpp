@@ -12,6 +12,7 @@ void Session::InitHandlers()
     Handlers[CMSG_PLAYER_LOGIN] = &Session::HandlePlayerLogin;
     Handlers[CMSG_CHAR_ENUM] = &Session::HandleCharacterEnum;
     Handlers[CMSG_CHAR_CREATE] = &Session::HandleCharacterCreate;
+    Handlers[CMSG_CHAR_DELETE] = &Session::HandleCharacterDelete;
     Handlers[CMSG_ITEM_QUERY_SINGLE] = &Session::HandleItemQuerySingleOpcode;
     Handlers[CMSG_NAME_QUERY] = &Session::HandleNameQueryOpcode;
 

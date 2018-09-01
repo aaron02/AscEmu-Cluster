@@ -21,7 +21,6 @@ This project is for educational purpose. So, if you're looking for serverfiles t
 This Clustering Repo is not fully functional it has a couple of bugs.
 
 Currently not working:
-Delete Character,
 When Server Traveling And travel right back ( rare issue ) for example destination is on port back node then you get stuck in loading screen. Example Instance is Stormiwnd Stockade,
 Multi Server Guild not Supported,
 A bit of a Lag because Packets need to Pass Realmserver first maybe it can be optimised. so we can Handle it faster.( logon -> realm -> workers ),
@@ -30,6 +29,7 @@ You can get Stuck in login screen when logging in again,
 
 Currently Working:
 Char Creation,
+Char Deletion,
 Whispering trough Servers,
 Server Travel,
 General Cluster Setup,
