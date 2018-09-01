@@ -120,14 +120,16 @@ void Channel::AttemptJoin(RPlayerInfo* plr, const char * password)
 
     plr->JoinedChannel(this);
 
-    // server was invalid hackfix to get login working :P was working before i deleted all stuff -.-
-	/*WorldPacket data2(ISMSG_CHANNEL_ACTION, 9);
+	WorldPacket data2(ISMSG_CHANNEL_ACTION, 9);
 	data2 << uint8(CHANNEL_JOIN); //joined channel
 	data2 << uint32(plr->Guid);
 	data2 << uint32(m_channelId);
-	plr->GetSession()->GetServer()->SendPacket(&data2);
 
-	m_members.insert(std::make_pair(plr, flags));*/
+    // Incase the Server is Invalid or not set now so we dont crash
+    if (plr->GetSession()->GetServer())
+        plr->GetSession()->GetServer()->SendPacket(&data2);
+
+	m_members.insert(std::make_pair(plr, flags));
 
     if (m_announce)
     {

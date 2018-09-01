@@ -81,13 +81,13 @@ void WorldSocket::OnDisconnect()
     }
 
     // clear buffer
-    queueLock.Acquire();
+   /* queueLock.Acquire();
 
     WorldPacket *pck;
     while ((pck = _queue.Pop()))
         delete pck;
 
-    queueLock.Release();
+    queueLock.Release();*/
 }
 
 void WorldSocket::OutPacket(uint16 opcode, size_t len, const void* data)

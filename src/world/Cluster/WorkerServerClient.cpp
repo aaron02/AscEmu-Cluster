@@ -54,8 +54,10 @@ void WSClient::OnRead()
                     pck->resize(sz);
                     readBuffer.Read((void*)pck->contents(), sz);
                 }
-                if (session) session->QueuePacket(pck);
-                else delete pck;
+                if (session && !session->bDeleted)
+                    session->QueuePacket(pck);
+                else
+                    delete pck;
             }
             _cmd = 0;
             continue;

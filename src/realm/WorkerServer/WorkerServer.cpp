@@ -97,7 +97,7 @@ void WorkerServer::HandleSwitchServer(WorldPacket & pck)
     data << _class;
     data << m_socket;
     s->GetNextServer()->SendPacket(&data);
-    printf("Switch to worker Server %u  \n", s->GetNextServer()->GetID());
+    LogDebug("Switch to worker Server %u", s->GetNextServer()->GetID());
 }
 
 void WorkerServer::HandleRegisterWorker(WorldPacket & pck)
@@ -277,6 +277,7 @@ void WorkerServer::HandlePlayerLoginResult(WorldPacket & pck)
         if (s)
         {
             /* update server */
+            s->SetServer(this);
             s->SetNextServer();
 
             /* pack together a player info packet and distribute it to all the other servers */
@@ -327,12 +328,16 @@ void WorkerServer::Update()
     //sClusterMgr.OnServerDisconnect(this);
     }
 
+    // Send Ping and Update the Players in case they changed location
     if ((t - last_ping) > 15)
     {
-    // send a ping packet.
-    SendPing();
-    }
 
+        // send a ping packet.
+        SendPing();
+
+        // Update Players
+        sClientMgr.SendPackedClientInfo(this);
+    }
 }
 
 void WorkerServer::SendPing()
@@ -367,9 +372,12 @@ void WorkerServer::HandlePlayerInfo(WorldPacket & pck)
     pck >> guid;
 
     RPlayerInfo * pRPlayer = sClientMgr.GetRPlayer(guid);
-    ASSERT(pRPlayer);
 
-    pRPlayer->Unpack(pck);
+    if (pRPlayer)
+    {
+        ASSERT(pRPlayer);
+        pRPlayer->Unpack(pck);
+    }
 }
 
 void WorkerServer::Pong(WorldPacket & pck)

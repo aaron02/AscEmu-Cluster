@@ -330,12 +330,15 @@ void ClusterInterface::HandlePackedPlayerInfo(WorldPacket & pck)
 
     if (uncompress((uint8*)buf.contents(), &rsize, pck.contents() + 4, (u_long)pck.size() - 4) != Z_OK)
     {
-        printf("Uncompress of player info failed.\n");
+        LogDebug("Cluster Interface: Uncompress of player info failed.");
         return;
     }
 
     RPlayerInfo * pi;
     uint32 count;
+
+    // Accguire Map Mutex
+    m_onlinePlayerMapMutex.Acquire();
 
     buf >> count;
     for (uint32 i = 0; i < count; ++i)
@@ -344,8 +347,11 @@ void ClusterInterface::HandlePackedPlayerInfo(WorldPacket & pck)
         pi->Unpack(buf);
         _onlinePlayers[pi->Guid] = pi;
 
-        printf(" guid %u \n", pi->Guid);
+        LogDebug("Cluster Interface: PackedPlayerInfo Unpacked Guids %u.", pi->Guid);
     }
+
+    // Release
+    m_onlinePlayerMapMutex.Release();
 }
 
 void ClusterInterface::Update()
@@ -481,29 +487,13 @@ void ClusterInterface::HandleTeleportResult(WorldPacket & pck)
         // Save us to the Database :)
         CharacterDatabase.Execute("UPDATE characters SET mapid=%u, positionX=%f, positionY=%f, positionZ=%f WHERE guid=%u AND acct=%u", mapid, vec.x, vec.y, vec.z, playerlowguid, s->GetAccountId());
 
-        Arcemu::Sleep(200);
+        //Arcemu::Sleep(200);
         // shift back to old ones for removing from world
         s->GetPlayer()->SetMapId(oldmapid);
         s->GetPlayer()->SetInstanceID(oldinstanceid);
 
         //Switch Server
         SendSwitchServer(s, sessionid, playerlowguid, _class, mapid, instanceid, vec, o);
-
-        /*RPlayerInfo* pRPlayer = GetPlayer(playerlowguid);
-        bool newRplr = false;
-        if (pRPlayer == NULL)
-        {
-            pRPlayer = new RPlayerInfo;
-            newRplr = true;
-        }
-        s->GetPlayer()->UpdateRPlayerInfo(pRPlayer, newRplr);
-        pRPlayer->MapId = mapid;
-        pRPlayer->InstanceId = instanceid;
-
-        WorldPacket data;
-        data.Initialize(ICMSG_PLAYER_INFO);
-        pRPlayer->Pack(data);
-        sClusterInterface.SendPacket(&data);*/
 
         //Remove us from this Server
         sEventMgr.AddEvent(s->GetPlayer(), &Player::HandleClusterRemove, EVENT_UNK, 1, 1, EVENT_FLAG_DO_NOT_EXECUTE_IN_WORLD_CONTEXT);
