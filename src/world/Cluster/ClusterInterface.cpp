@@ -144,8 +144,6 @@ void ClusterInterface::HandleAuthRequest(WorldPacket & pck)
 
     if (x == 1)// BUILD_REVISION
     {
-        //Log.Debug("ClusterInterface", "Incoming auth request from %s (RS build %u)", _clientSocket->GetRemoteIP().c_str(), x);
-
         WorldPacket data(ICMSG_AUTH_REPLY, 50);
         data << uint32(1); //BUILD_REVISION
         data << GenerateVersionString();
@@ -378,7 +376,7 @@ void ClusterInterface::Update()
     {
         // no pong for 60 seconds -> remove the socket
         //printf("Remove the Socket time out \n");
-        //ConnectionDropped();
+        ConnectionDropped();
     }
 }
 
@@ -487,7 +485,6 @@ void ClusterInterface::HandleTeleportResult(WorldPacket & pck)
         // Save us to the Database :)
         CharacterDatabase.Execute("UPDATE characters SET mapid=%u, positionX=%f, positionY=%f, positionZ=%f WHERE guid=%u AND acct=%u", mapid, vec.x, vec.y, vec.z, playerlowguid, s->GetAccountId());
 
-        //Arcemu::Sleep(200);
         // shift back to old ones for removing from world
         s->GetPlayer()->SetMapId(oldmapid);
         s->GetPlayer()->SetInstanceID(oldinstanceid);

@@ -638,10 +638,13 @@ void World::sendZoneMessage(WorldPacket* worldPacket, uint32_t zoneId, WorldSess
 
     for (auto activeSessions = mActiveSessionMapStore.begin(); activeSessions != mActiveSessionMapStore.end(); ++activeSessions)
     {
-        if (activeSessions->second->GetPlayer() && activeSessions->second->GetPlayer()->IsInWorld() && activeSessions->second != sendToSelf)
+        if (!activeSessions->second->bDeleted)
         {
-            if (activeSessions->second->GetPlayer()->GetZoneId() == zoneId)
-                activeSessions->second->SendPacket(worldPacket);
+            if (activeSessions->second->GetPlayer() && activeSessions->second->GetPlayer()->IsInWorld() && activeSessions->second != sendToSelf)
+            {
+                if (activeSessions->second->GetPlayer()->GetZoneId() == zoneId)
+                    activeSessions->second->SendPacket(worldPacket);
+            }
         }
     }
 

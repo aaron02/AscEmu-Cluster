@@ -325,7 +325,7 @@ void WorkerServer::Update()
     {
     // no pong for 60 seconds -> remove the socket
     //printf("Remove the Socket time out \n");
-    //sClusterMgr.OnServerDisconnect(this);
+    sClusterMgr.OnServerDisconnect(this);
     }
 
     // Send Ping and Update the Players in case they changed location

@@ -59,7 +59,8 @@ void Session::HandleMessagechatOpcode( WorldPacket & recv_data )
 	// were only going to handle these types here, otherwise send it to the world server for processing
 	if( type != CHAT_MSG_CHANNEL && type != CHAT_MSG_WHISPER )
 	{
-		GetServer()->SendWoWPacket(this, &recv_data);
+        if(GetServer())
+		    GetServer()->SendWoWPacket(this, &recv_data);
 	}
 	recv_data >> lang;
 

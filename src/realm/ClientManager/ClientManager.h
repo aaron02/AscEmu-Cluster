@@ -25,6 +25,7 @@ protected:
 public:
     SessionMap m_sessions;
     std::unordered_map<RPlayerInfo*, Session*> m_sessionsbyinfo;
+    std::unordered_set<RPlayerInfo*> m_pendingRPlayerDeletions;
     std::vector<uint32> m_reusablesessions;
     std::vector<uint32> m_pendingdeletesessionids;
 
@@ -78,6 +79,55 @@ public:
         RPlayerInfo* r = itr->second;
         m_lock.ReleaseReadLock();
         return r;
+    }
+
+    /* Send All Players from Server xx to the Character Screen Server has gone Offline :) */
+    _inline void DisconnectRPlayerByServer(WorkerServer* server)
+    {
+        m_lock.AcquireReadLock();
+        for (ClientMap::const_iterator it = m_clients.begin(); it != m_clients.end(); ++it)
+        {
+            if (it->second->session->GetServer() == server)
+            {
+                // Send Logout maybe there is an other way of doing it?
+                RPlayerInfo * pi = it->second;
+                Session * s = it->second->session;
+                if (pi && s)
+                {
+                    /* tell all other servers this player has gone offline */
+                    WorldPacket data(ISMSG_DESTROY_PLAYER_INFO, 4);
+                    data << pi->Guid;
+                    sClusterMgr.DistributePacketToAll(&data);
+
+                    /* clear the player from the session */
+                    s->ClearCurrentPlayer();
+                    s->ClearServers();
+
+                    m_pendingRPlayerDeletions.insert(pi);
+                }
+
+                // Send Logout
+                WorldPacket data(SMSG_LOGOUT_COMPLETE, 0);
+                data << 0;
+                s->SendPacket(&data);
+            }
+        }
+
+        // Clear the Player from the OnlinePlayers List so we dont Appear again on the Server at Update.
+        if (m_pendingRPlayerDeletions.size() > 0)
+        {
+            for (std::unordered_set<RPlayerInfo*>::iterator itr = m_pendingRPlayerDeletions.begin(); itr != m_pendingRPlayerDeletions.end(); ++itr)
+            {
+                RPlayerInfo* pi = *itr;
+                printf("guid %u \n", pi->Guid);
+                DestroyRPlayerInfo(pi->Guid);
+            }
+
+            // Clear the PendingDeletions were done
+            m_pendingRPlayerDeletions.clear();
+        }
+
+        m_lock.ReleaseReadLock();
     }
 
     /* get rplayer */

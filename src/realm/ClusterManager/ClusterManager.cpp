@@ -82,6 +82,7 @@ void ClusterMgr::Update()
         if ((itr)->Destructable())
         {
             LogNotice("Delete Worker Server %u Completly", itr->GetID());
+            sClientMgr.DisconnectRPlayerByServer(itr);
             delete (itr);
         }
 
